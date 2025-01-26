@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from .models import Category, Product, Cart, FavoriteProduct
-from .serializers import CategorySerializer, ProductSerializer, CartSerializer, FavoriteProductSerializer
+from .models import Category, Product, Cart, FavoriteProduct, Review
+from .serializers import CategorySerializer, ProductSerializer, CartSerializer, FavoriteProductSerializer, ReviewSerializer
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -11,6 +11,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()    
     serializer_class = ProductSerializer
+    
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        product = Product.objects.get(pk=pk)
+        product_serializer = ProductSerializer(product)
+        review_serializer = ReviewSerializer([review for review in product.review_set.all()], many=True)
+        return Response({"product": product_serializer.data, "reviews": review_serializer.data})    
     
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()   
@@ -34,3 +40,8 @@ class CartViewSet(viewsets.ModelViewSet):
 class FavoriteProductViewSet(viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()    
     serializer_class = FavoriteProductSerializer
+    
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()    
+    serializer_class = ReviewSerializer
+    

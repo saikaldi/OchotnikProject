@@ -26,8 +26,8 @@ class Category(models.Model):
         super().save(*args, **kwargs)
             
     class Meta:
-        verbose_name = "1. Категория товара"
-        verbose_name_plural = "Категории товара"
+        verbose_name = "Категория товара"
+        verbose_name_plural = "1. Категории товара"
         ordering = ["-created_at"]
         
         
@@ -75,8 +75,8 @@ class Product(models.Model):
         super().save(*args, **kwargs)
   
     class Meta:
-        verbose_name = "2. Товар"
-        verbose_name_plural = "Товары"
+        verbose_name = "Товар"
+        verbose_name_plural = "2. Товары"
         ordering = ["-created_at"]
 
 class Cart(models.Model):
@@ -101,9 +101,9 @@ class Cart(models.Model):
         return self.total_price
 
     class Meta:
-        verbose_name = "3. Товар в корзине"
-        verbose_name_plural = "Товары в корзине"
-        ordering = ["-created_at"]
+        verbose_name = "Товар в корзине"
+        verbose_name_plural = "3. Корзина"
+        ordering = ['-total_price']
         
         
 class FavoriteProduct(models.Model):
@@ -128,6 +128,44 @@ class FavoriteProduct(models.Model):
         super().save(*args, **kwargs)
             
     class Meta:
-        verbose_name = "4. Избранный товар"
-        verbose_name_plural = "Избранные товары"
+        verbose_name = "Избранный товар"
+        verbose_name_plural = "4. Избранные товары"
         ordering = ["-created_at", "user"]
+        
+        
+class Review(models.Model):
+    CHOICES_RATING = (
+        ('*', '*'),
+        ('**', '**'),
+        ('***', '***'), 
+        ('****', '****'),
+        ('*****', '*****'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
+    text = models.TextField(verbose_name="Текст")
+    rating = models.CharField(default='**', max_length=5, choices=CHOICES_RATING, verbose_name="Рейтинг")
+    photo = models.ImageField(verbose_name="Изображение", upload_to="reviews/images")
+    slug = models.SlugField(max_length=100, unique=True, db_index=True, verbose_name="slug", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product_id.product_name}"
+    
+    def save(self, *args, **kwargs):
+        if not self.slug or self.slug.strip() == "":
+            base_slug = slugify(self.text)
+            unique_slug = base_slug
+            counter = 1
+            while Review.objects.filter(slug=unique_slug).exists():
+                unique_slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = unique_slug
+        super().save(*args, **kwargs)
+            
+    class Meta:
+        verbose_name = "Отзыв"
+        verbose_name_plural = "5. Отзывы"
+        ordering = ["-created_at", "user"]
+        

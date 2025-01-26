@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, Cart, FavoriteProduct
+from .models import Category, Product, Cart, FavoriteProduct, Review
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,3 +32,7 @@ class FavoriteProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Товар уже в избранном")        
         return data
         
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ["id", "user", "product_id", "text", "rating", "photo", "created_at"]

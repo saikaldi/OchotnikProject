@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Cart, FavoriteProduct
+from .models import Category, Product, Cart, FavoriteProduct, Review
 
 # Register your models here.
 
@@ -17,8 +17,14 @@ class CartAdmin(admin.ModelAdmin):
 class FavoriteProductAdmin(admin.ModelAdmin):   
     list_display = ("user", "product_id", "created_at") 
     prepopulated_fields = {"slug": ("product_id",)}
+ 
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("user", "product_id", "rating", "created_at")
+    prepopulated_fields = {"slug": ("product_id",)}
+    
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)  
 admin.site.register(Cart, CartAdmin)
 admin.site.register(FavoriteProduct, FavoriteProductAdmin)
+admin.site.register(Review, ReviewAdmin)
