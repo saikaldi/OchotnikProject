@@ -18,10 +18,29 @@ class CartSerializer(serializers.ModelSerializer):
         fields = ["id", "user", "product", "quantity", 'total_price', "created_at"]
     
     def validate(self, data):
-        if Cart.objects.filter(user=data['user'], product=data['product']).exists():
-            raise serializers.ValidationError("Товар уже в корзине")
-        return data   
-        
+        if 'user' in data and 'product' in data:
+            if Cart.objects.filter(user=data['user'], product=data['product']).exists():
+                cart = Cart.objects.get(user=data['user'], product=data['product'])
+                if 'quantity' in data:
+                    cart.quantity = data['quantity']
+                if 'total_price' in data:
+                    cart.total_price = data['total_price']
+                cart.save()
+                return {'id': cart.id, 'user': cart.user, 'product': cart.product, 'quantity': cart.quantity, 'total_price': cart.total_price}
+        return data
+    
+    def update(self, instance, validated_data):
+        if 'user' in validated_data and 'product' in validated_data:
+            if Cart.objects.filter(user=validated_data['user'], product=validated_data['product']).exists():
+                if instance.user != validated_data['user'] or instance.product != validated_data['product']:
+                    raise serializers.ValidationError("Товар уже в корзине")
+        instance.quantity = validated_data.get('quantity', instance.quantity)
+        instance.total_price = validated_data.get('total_price', instance.total_price)
+        instance.save()
+        return instance
+
+
+    
 class FavoriteProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = FavoriteProduct

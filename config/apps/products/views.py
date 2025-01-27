@@ -1,5 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 from .models import Category, Product, Cart, FavoriteProduct, Review
 from .serializers import CategorySerializer, ProductSerializer, CartSerializer, FavoriteProductSerializer, ReviewSerializer
@@ -13,7 +15,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     
     def retrieve(self, request, pk=None, *args, **kwargs):
-        product = Product.objects.get(pk=pk)
+        product = get_object_or_404(Product, pk=pk)
         product_serializer = ProductSerializer(product)
         review_serializer = ReviewSerializer([review for review in product.review_set.all()], many=True)
         return Response({"product": product_serializer.data, "reviews": review_serializer.data})    
@@ -32,11 +34,11 @@ class CartViewSet(viewsets.ModelViewSet):
         return Response({"carts": carts_serializer.data, "cart_total_price": cart_total_price})
     
     def retrieve(self, request, pk=None, *args, **kwargs):
-        cart = Cart.objects.get(pk=pk)
+        cart = get_object_or_404(Cart, pk=pk)
         cart_serializer = CartSerializer(cart)
         product_serializer = ProductSerializer(cart.product)
         return Response({"cart": cart_serializer.data, "product": product_serializer.data})
-    
+   
 class FavoriteProductViewSet(viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()    
     serializer_class = FavoriteProductSerializer

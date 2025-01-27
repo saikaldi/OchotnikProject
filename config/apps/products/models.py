@@ -104,6 +104,8 @@ class Cart(models.Model):
         verbose_name = "Товар в корзине"
         verbose_name_plural = "3. Корзина"
         ordering = ['-total_price']
+        unique_together = ("user", "product")
+
         
         
 class FavoriteProduct(models.Model):
@@ -131,6 +133,8 @@ class FavoriteProduct(models.Model):
         verbose_name = "Избранный товар"
         verbose_name_plural = "4. Избранные товары"
         ordering = ["-created_at", "user"]
+        unique_together = ("user", "product_id")
+
         
         
 class Review(models.Model):
