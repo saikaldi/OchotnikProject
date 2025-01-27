@@ -10,7 +10,12 @@ class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     class Meta:
         model = Product
-        fields = ["id",  "category", "product_name", "country", "brand", "model", "color", "size", "material", "price", "description", "image", "quantity", "is_new", "is_hot", "is_special", "is_promo",  "is_discount", "discount_percent", "discount_price", "created_at", ]
+        fields = [
+            "id","category", "product_name", "country", "brand", 
+            "model", "color", "size", "material", "price", "description", 
+            "image", "quantity", "is_new", "is_hot", "is_special", "is_promo", 
+            "is_discount", "discount_percent", "discount_price", "created_at",
+            ]
         
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,8 +43,6 @@ class CartSerializer(serializers.ModelSerializer):
         instance.total_price = validated_data.get('total_price', instance.total_price)
         instance.save()
         return instance
-
-
     
 class FavoriteProductSerializer(serializers.ModelSerializer):
     class Meta:

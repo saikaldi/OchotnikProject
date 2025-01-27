@@ -48,6 +48,20 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()    
     serializer_class = FavoriteProductSerializer
     
+    def list(self, request, *args, **kwargs):
+        favorite_products = FavoriteProduct.objects.all()
+        favorite_products_serializer = FavoriteProductSerializer(favorite_products, many=True)
+        products_serializer = ProductSerializer([favorite_product.product_id for favorite_product in favorite_products], many=True)
+        for favorite_product, product in zip(favorite_products_serializer.data, products_serializer.data):
+            favorite_product['product'] = product
+        return Response({"favorite_products": favorite_products_serializer.data})
+    
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        favorite_product = get_object_or_404(FavoriteProduct, pk=pk)
+        favorite_product_serializer = FavoriteProductSerializer(favorite_product)
+        product_serializer = ProductSerializer(favorite_product.product_id)
+        return Response({"favorite_product": favorite_product_serializer.data, "product": product_serializer.data})
+    
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()    
     serializer_class = ReviewSerializer
