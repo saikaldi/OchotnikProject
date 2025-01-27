@@ -84,6 +84,7 @@ class Cart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="Товар")
     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма заказа", blank=True, null=True)
+    slug = models.SlugField(max_length=100, unique=True, db_index=True, verbose_name="slug", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
 
@@ -91,6 +92,14 @@ class Cart(models.Model):
         return f"{self.user.username} - {self.product.product_name}"
     
     def save(self, *args, **kwargs):
+        if not self.slug or self.slug.strip() == "":
+            base_slug = slugify(self.user.username)
+            unique_slug = base_slug
+            counter = 1
+            while Cart.objects.filter(slug=unique_slug).exists():
+                unique_slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = unique_slug 
         if self.product.is_discount:
             self.total_price = self.quantity * self.product.discount_price
         else:   

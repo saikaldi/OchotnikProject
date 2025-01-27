@@ -13,6 +13,7 @@ class CategoryAdmin(admin.ModelAdmin):
     
 class CartAdmin(admin.ModelAdmin):
     list_display = ("user", "product", "quantity",  "total_price", "created_at")
+    prepopulated_fields = {"slug": ("user",)}
 
 class FavoriteProductAdmin(admin.ModelAdmin):   
     list_display = ("user", "product_id", "created_at") 
