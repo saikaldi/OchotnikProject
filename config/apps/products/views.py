@@ -18,8 +18,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         product = get_object_or_404(Product, pk=pk)
         product_serializer = ProductSerializer(product)
         review_serializer = ReviewSerializer([review for review in product.review_set.all()], many=True)
-        return Response({"product": product_serializer.data, "reviews": review_serializer.data})    
-    
+        similar_products_serializer = ProductSerializer([similar_product for similar_product in product.similar_products()], many=True)
+        return Response(
+                        {"product": product_serializer.data, 
+                        "reviews": review_serializer.data, 
+                        "similar_products": similar_products_serializer.data}
+                        )
+                
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()   
     serializer_class = CartSerializer

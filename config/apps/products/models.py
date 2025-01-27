@@ -57,7 +57,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
-        
+    
+    def similar_products(self):
+        similar_products = Product.objects.filter(category=self.category, brand=self.brand, model=self.model)
+        return similar_products.exclude(id=self.id)
+  
     def save(self, *args, **kwargs):
         if not self.slug or self.slug.strip() == "":
             base_slug = slugify(self.product_name)
