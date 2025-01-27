@@ -45,6 +45,7 @@ DJANGO_APPS = [
 
 PRODUCTS_APPS = [
     "apps.products",
+    "apps.personal_data",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PRODUCTS_APPS
