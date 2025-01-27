@@ -172,7 +172,7 @@ class Review(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug or self.slug.strip() == "":
-            base_slug = slugify(self.text)
+            base_slug = slugify(f"{self.user.username}-{self.product_id.product_name}")
             unique_slug = base_slug
             counter = 1
             while Review.objects.filter(slug=unique_slug).exists():
