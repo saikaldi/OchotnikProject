@@ -36,7 +36,7 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = "Профиль"
         verbose_name_plural = "1. Профили"
-
+        ordering = ["-created_at"]
 
 class UserAddress(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
@@ -68,6 +68,7 @@ class UserAddress(models.Model):
     class Meta:
         verbose_name = "Адрес"
         verbose_name_plural = "2. Адреса"
+        ordering = ["-created_at"]
         
 class UserPymentCard(models.Model):
     cart_regex = RegexValidator(regex=r'^\d{12}$', message="Номер карты должен состоять из 12 цифр")
@@ -100,6 +101,8 @@ class UserPymentCard(models.Model):
     class Meta:
         verbose_name = "Карта пользователя"
         verbose_name_plural = "3. Карты ползователя"
+        ordering = ["-created_at"]
+
     
 
     
