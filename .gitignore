@@ -4,6 +4,7 @@
 *.pyd
 __pycache__
 db.sqlite3
+req.txt
 
 # Django stuff:
 *.log
