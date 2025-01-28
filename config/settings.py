@@ -14,21 +14,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = config("DEBUG", cast=bool)
 
-# Application definition
-
-DJANGO_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    
-    "rest_framework",
-]
-
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -46,6 +32,7 @@ DJANGO_APPS = [
 PRODUCTS_APPS = [
     "apps.products",
     "apps.personal_data",
+    "apps.ordering",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PRODUCTS_APPS
