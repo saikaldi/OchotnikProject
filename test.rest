@@ -1,0 +1,32 @@
+POST  http://127.0.0.1:8001/api/v1/auth/register/
+Content-Type: application/json
+
+{
+  "name": "test12",
+  "username": "tests",
+  "password": "test12345",
+  "password2": "test12345",
+  "email": "ernistturgunbaev01@gmail.com"
+}
+
+###
+POST http://127.0.0.1:8001/api/v1/auth/login/
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "test12345"
+}
+
+###
+POST http://127.0.0.1:8001/api/v1/auth/password-reset/
+Content-Type: application/json
+
+{
+    "email": "ernistturgunbaev01@gmail.com"
+}
+###
+
+POST http://127.0.0.1:8000/api/v1/ordering/orders/
+Content-Type: application/json
+
