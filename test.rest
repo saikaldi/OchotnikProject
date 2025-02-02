@@ -1,0 +1,51 @@
+POST http://127.0.0.1:8000/api/v1/auth/sign-up/
+Content-Type: application/json
+
+{
+    "username": "Ernist",
+    "email": "ernistturgunbaev1@gmail.com",
+    "password": "qwerty123456",
+    "password_confirm": "qwerty123456",
+    "user_status": "Пользователь",
+    "last_name": "Turgunbaev"
+}
+
+###
+
+POST http://127.0.0.1:8000/api/v1/auth/sign-up-confirmation/
+Content-Type: application/json
+
+{
+    "email": "ernistturgunbaev1@gmail.com",
+    "code": "986838"
+}
+
+###
+
+POST http://127.0.0.1:8000/api/v1/auth/sign-in/
+Content-Type: application/json
+
+{
+    "email": "ernistturgunbaev1@gmail.com",
+    "password": "qwerty123456"
+}
+
+###
+POST  http://127.0.0.1:8000/api/v1/auth/token/
+Content-Type: application/json
+
+{
+    "email": "ernistturgunbaev1@gmail.com",
+    "password": "qwerty123456"
+}
+
+###
+POST  http://127.0.0.1:8000/api/v1/auth/token/refresh/
+Content-Type: application/json
+
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4NTE3ODgyLCJpYXQiOjE3Mzg1MTc1ODIsImp0aSI6ImU5Mjc2NGZiYzkyNTRmZTk4ZDM3NDc4MDhmZDFiMWUxIiwidXNlcl9pZCI6MzN9.oZ8d8X98GAHVULToMkqvAu1GdM24IFV3w_iLd5hMLxs"
+}
+
+
+
