@@ -17,7 +17,7 @@ Content-Type: application/json
 
 {
     "email": "ernistturgunbaev1@gmail.com",
-    "code": "986838"
+    "code": "944619"
 }
 
 ###
@@ -27,7 +27,7 @@ Content-Type: application/json
 
 {
     "email": "ernistturgunbaev1@gmail.com",
-    "password": "qwerty123456"
+    "password": "qwerty123456789"
 }
 
 ###
@@ -44,9 +44,39 @@ POST  http://127.0.0.1:8000/api/v1/auth/token/refresh/
 Content-Type: application/json
 
 {
-    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4NTE3ODgyLCJpYXQiOjE3Mzg1MTc1ODIsImp0aSI6ImU5Mjc2NGZiYzkyNTRmZTk4ZDM3NDc4MDhmZDFiMWUxIiwidXNlcl9pZCI6MzN9.oZ8d8X98GAHVULToMkqvAu1GdM24IFV3w_iLd5hMLxs"
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczODc2NzM5OSwiaWF0IjoxNzM4NjgwOTk5LCJqdGkiOiJjMjM3OGNiZmI5MGU0YjI3YWI1NjZhMTE3MjdmNWUyYSIsInVzZXJfaWQiOjd9.7T0_AQjlAes0B0Cj1LeCeF_UeKwyTziJYXKqOHhfYhQ"
 }
 
 
 
-№№№
+###
+POST  http://127.0.0.1:8000/api/v1/auth/request-password-reset/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4Njg0NTczLCJpYXQiOjE3Mzg2ODQyNzMsImp0aSI6ImNmN2UxMGMxNjY1MjQ0YzNhYWVjZmQzNmViYzg2YjUyIiwidXNlcl9pZCI6OH0.QM7V2vE8Vxge3dmuPZQasTJOPl-elZqV-YRNQ-PYFKw
+
+
+{
+    "email": "ernistturgunbaev1@gmail.com"
+}
+
+
+### 
+POST  http://127.0.0.1:8000/api/v1/auth/confirm-password-reset/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM4NjgyNjEyLCJpYXQiOjE3Mzg2ODIzMTIsImp0aSI6IjA0YjdmMzhlNWVkMjQyMTdhYzVjMGNjYzNjMGY5NGQ1IiwidXNlcl9pZCI6N30.cg1SX_bqZ2A9OreGi47HwTS0LZYdVFKuf544fwlov0w
+
+{
+    "email": "ernistturgunbaev1@gmail.com",
+    "new_password": "qwerty123456789",
+    "new_password_confirm": "qwerty123456789"
+}
+
+###
+POST http://localhost:8000/api/v1/auth/confirm-password-reset/?token=WDbWBK5iqlGEi6OnMqD5uG8-VdkKCuGSxCr3EBE5TvA 
+Content-Type: application/json
+
+{
+    "email": "ernistturgunbaev1@gmail.com",
+    "new_password": "qwerty123456789",
+    "new_password_confirm": "qwerty123456789"
+}

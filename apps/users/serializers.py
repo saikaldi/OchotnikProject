@@ -3,7 +3,10 @@ from .models import User
 from .models import EmailVerification
 from django.core.validators import EmailValidator
 from django.contrib.auth import get_user_model, authenticate
-from django.contrib.auth.hashers import make_password
+from django.conf import settings
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 
 
 User = get_user_model()
@@ -24,7 +27,6 @@ class RegisterUserSerializer(serializers.Serializer):
         return data
     
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
         user = User.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
@@ -61,13 +63,43 @@ class ConfirmRegistrationSerializer(serializers.Serializer):
     
 class LoginUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    password = serializers.CharField(min_length=8)
+    password = serializers.CharField()
 
     def validate(self, data):
-        user = authenticate(email=data['email'], password=data['password'])
-        if not user:
-            raise serializers.ValidationError("Неправильный email или пароль")
-        if not user.is_active:
-            raise serializers.ValidationError("Аккаунт не активирован")
-        self.validated_data['user'] = user
+        email = data.get('email')
+        password = data.get('password')
+
+        if email and password:
+            user = authenticate(email=email, password=password)
+            if user:
+                if not user.is_active:
+                    raise serializers.ValidationError('Аккаунт не активирован')
+                data['user'] = user
+            else:
+                raise serializers.ValidationError('Неверный email или пароль')
+        else:
+            raise serializers.ValidationError('Email и пароль обязательны')
         return data
+
+class RequestPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Пользователь с таким email не найден.')
+        return value
+
+class ConfirmPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField()
+
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Пользователь с таким email не найден.')
+        return value
+    
+    

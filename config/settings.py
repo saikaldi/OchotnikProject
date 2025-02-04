@@ -48,6 +48,7 @@ REST_FRAMEWORK = {
     ),
 }
 
+BASE_URL = 'http://localhost:8000'
 
 
 MIDDLEWARE = [

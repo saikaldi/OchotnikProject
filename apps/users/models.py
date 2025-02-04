@@ -38,7 +38,6 @@ class User(AbstractUser, PermissionsMixin):
     last_name = models.CharField(max_length=50, verbose_name="Фамилия", blank=True, null=True)
     user_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Пользователь", verbose_name="Статус")
     email = models.EmailField(unique=True, verbose_name="Email")
-    is_status_approved = models.BooleanField(default=False, verbose_name="Подтвержден")  #       
     is_staff = models.BooleanField(default=False)                # Флаг для статуса администратора
     is_active = models.BooleanField(default=False)               # Флаг для активности пользователя
     date_joined = models.DateTimeField(default=timezone.now)     # Дата регистрации
@@ -51,10 +50,6 @@ class User(AbstractUser, PermissionsMixin):
     
     def __str__(self):
         return self.email
-    
-    @property
-    def is_approved(self):                                       # Проверка подтверждения пользователя
-        return self.is_status_approved
     
     @property
     def is_admin(self):                                          # Проверка администратора
@@ -85,7 +80,7 @@ class EmailVerification(models.Model):
     
     # Функция проверки времени жизни кода
     def is_expired(self):
-        return self.created_at + timedelta(minutes=5) < timezone.now()
+        return self.created_at + timedelta(minutes=3) < timezone.now()
    
     def __str__(self):
         return f'{self.user.email} - {self.code}'

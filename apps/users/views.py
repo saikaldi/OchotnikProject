@@ -1,90 +1,101 @@
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .serializers import RegisterUserSerializer, ConfirmEmailSerializer, LoginUserSerializer
+from rest_framework.views import APIView
+from .serializers import RegisterUserSerializer, ConfirmEmailSerializer, LoginUserSerializer, RequestPasswordResetSerializer, ConfirmPasswordResetSerializer
 from .models import User, EmailVerification
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
-from django.utils.http import urlsafe_base64_decode
-from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.hashers import make_password
-
-from django.contrib.auth import authenticate
-import jwt
+import secrets
+import string
 
 User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterUserSerializer
-    
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
+        user_data = serializer.validated_data
+
         user = User.objects.create_user(
-            email=user['email'],
-            username=user['username'],
-            user_status=user['user_status'],
-            last_name=user['last_name']
+            email=user_data['email'],
+            username=user_data['username'],
+            password=user_data['password'],
+            user_status=user_data['user_status'],
+            last_name=user_data['last_name']
         )
-        
-        # Верификациялоо кодун түзүү
+
         verification_code = EmailVerification.objects.create(
             user=user,
             code=EmailVerification.generate_code()
         )
+
+        try:
+            send_mail(
+                subject='Подтверждение по email',
+                message=f'Код подтверждения: {verification_code.code}',
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            user.delete()
+            return Response({'message': 'Ошибка отправки email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        send_mail(
-            subject='Подтверждение по email',
-            message=f'Подтверждение по email для аккаунта {user.email}. Код: {verification_code.code}',
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-        
-        return Response({'message': 'Код подтверждения отправлен на ваш email'}, status=status.HTTP_201_CREATED)
-    
+        return Response({'message': 'Код подтверждения отправлен'}, status=status.HTTP_201_CREATED)  
+
 class ConfirmRegistrationView(APIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        code = request.data.get('code')
         try:
+            email = request.data.get('email')
+            code = request.data.get('code')
             user = User.objects.get(email=email)
             confirmation = EmailVerification.objects.get(user=user, code=code)
-        except (User.DoesNotExist, EmailVerification.DoesNotExist):
-            return Response({'message': 'Неверный код или email'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if confirmation.is_used:
-            return Response({'message': 'Этот код уже был использован'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if confirmation.is_expired():
-            if not confirmation.is_used:
-                user.delete()
-                return Response({'message': 'Код подтверждения истек, запросите код повторно'}, status=status.HTTP_400_BAD_REQUEST)
-
-        confirmation.is_used = True
-        confirmation.save()
-
-        user.is_active = True
-        user.save()
-
-        if user.user_status != 'Студент':
-            user.is_approved_by_admin = False
+            if confirmation.is_used:
+                return Response({'message': 'Код уже использован'}, status=status.HTTP_400_BAD_REQUEST)
+            if confirmation.is_expired():
+                return self.send_new_code(user)
+            confirmation.is_used = True
+            confirmation.save()
+            user.is_active = True
             user.save()
+            refresh = RefreshToken.for_user(user)
+            token = str(refresh.access_token)
+            return Response({'message': 'Аккаунт подтвержден', 'token': token}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'message': 'Неверный email'}, status=status.HTTP_400_BAD_REQUEST)
+        except EmailVerification.DoesNotExist:
+            return Response({'message': 'Неверный код'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': 'Ошибка подтверждения регистрации'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        refresh = RefreshToken.for_user(user)
-        token = str(refresh.access_token)
-        return Response({'message': 'Пользователь успешно подтвержден', 'token': token}, status=status.HTTP_201_CREATED)    
-    
+    def send_new_code(self, user):
+        try:
+            verification_code = EmailVerification.objects.create(
+                user=user,
+                code=EmailVerification.generate_code()
+            )
+            send_mail(
+                subject='Подтверждение по email',
+                message=f'Код подтверждения: {verification_code.code}',
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            return Response({'error': 'Время кода истекло',
+                            'message': 'Новый код подтверждения отправлен'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Ошибка отправки нового кода'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class LoginView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = LoginUserSerializer
@@ -93,28 +104,51 @@ class LoginView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+
+        if not user.is_active:
+            return Response({'message': 'Аккаунт не активирован'}, status=status.HTTP_400_BAD_REQUEST)
+
         refresh = RefreshToken.for_user(user)
-        return Response({'token': str(refresh.access_token)}, status=status.HTTP_200_OK)
+        return Response({'token': str(refresh.access_token)}, status=status.HTTP_200_OK)    
+
+class RequestPasswordResetView(APIView):
+    permission_classes = [IsAuthenticated]
     
-class PasswordResetView(generics.CreateAPIView):
+    def post(self, request):
+        try:
+            serializer = RequestPasswordResetSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            email = serializer.validated_data['email']
+            user = User.objects.get(email=email)
+            token = secrets.token_urlsafe()  # Определение токена
+            reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/?token={token}"
+            send_mail(
+                'Перейдите по ссылке, чтобы сменить пароль',
+                f'Перейдите по ссылке, чтобы сменить пароль: {reset_url}',
+                settings.EMAIL_HOST_USER,
+                [user.email],
+                fail_silently=False
+            )
+            return Response({'message': 'Ссылка для смены пароля отправлена на ваш email.'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'message': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': 'Ошибка отправки email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ConfirmPasswordResetView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = ConfirmEmailSerializer
     
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = get_object_or_404(User, email=serializer.data['email'])
-        code = EmailVerification.generate_code()
-        user.email_verification.code = code
-        user.email_verification.save()
-        send_mail(
-            subject='Ссылка для сброса пароля',
-            message=f'Ссылка для сброса пароля для аккаунта {user.email}: http://127.0.0.1:8000/password-reset/?code={code}',
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-        return Response(serializer.data, status=201)
-    
-    def get(self, request, *args, **kwargs):
-        code = self.kwargs['code']  
+    def post(self, request):
+        try:
+            serializer = ConfirmPasswordResetSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            email = serializer.validated_data['email']
+            new_password = serializer.validated_data['new_password']
+            user = User.objects.get(email=email)
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Пароль успешно изменен.'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'message': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': 'Ошибка изменения пароля'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
