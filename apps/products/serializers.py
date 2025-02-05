@@ -58,3 +58,10 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ["id", "user", "product_id", "text", "rating", "photo", "created_at"]
+        
+class ForCartSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    class Meta:
+        model = Cart
+        fields = ["id", "user", "product", "quantity", 'total_price', "created_at"]
+    

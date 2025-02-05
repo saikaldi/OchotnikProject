@@ -34,7 +34,7 @@ DJANGO_APPS = [
 PRODUCTS_APPS = [
     "apps.products",
     "apps.personal_data",
-    # "apps.ordering",
+    "apps.ordering",
     "apps.users",
 ]
 
