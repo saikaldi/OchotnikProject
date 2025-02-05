@@ -2,7 +2,7 @@ POST http://127.0.0.1:8000/api/v1/auth/sign-up/
 Content-Type: application/json
 
 {
-    "username": "Ernist",
+    "username": "Ernist1",
     "email": "ernistturgunbaev1@gmail.com",
     "password": "qwerty123456",
     "password_confirm": "qwerty123456",
@@ -16,8 +16,8 @@ POST http://127.0.0.1:8000/api/v1/auth/sign-up-confirmation/
 Content-Type: application/json
 
 {
-    "email": "ernistturgunbaev1@gmail.com",
-    "code": "185724"
+    "email": "ernistturgunbaev01@gmail.com",
+    "code": "242171"
 }
 
 ###
@@ -44,7 +44,7 @@ POST  http://127.0.0.1:8000/api/v1/auth/token/refresh/
 Content-Type: application/json
 
 {
-    "refresh": ".eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczODc2NzM5OSwiaWF0IjoxNzM4NjgwOTk5LCJqdGkiOiJjMjM3OGNiZmI5MGU0YjI3YWI1NjZhMTE3MjdmNWUyYSIsInVzZXJfaWQiOjd9.7T0_AQjlAes0B0Cj1LeCeF_UeKwyTziJYXKqOHhfYhQ"
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczODg2MTQzMCwiaWF0IjoxNzM4Nzc1MDMwLCJqdGkiOiI5MDkxN2M1YjA1ODQ0MzhjYmZkNzBhMjNhYTE2YWMwMiIsInVzZXJfaWQiOjN9.yBE6C33a8MC4JtB4i-R2srXoLohf4uX0b_3f3PB3t8Y"
 }
 
 
