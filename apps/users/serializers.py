@@ -37,19 +37,6 @@ class RegisterUserSerializer(serializers.Serializer):
         )
         return user
     
-class ConfirmEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(validators=[EmailValidator()])
-    code = serializers.CharField(max_length=6)
-    
-    def validate(self, data):
-        if not EmailVerification.objects.filter(user=data['email'], code=data['code']).exists():
-            raise serializers.ValidationError("Код подтверждения не совпадает с указанным")
-        if EmailVerification.objects.filter(user=data['email'], is_used=True).exists():
-            raise serializers.ValidationError("Код подтверждения уже использован")
-        if not User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError("Пользователь с таким email не существует")
-        return data
-    
 class ConfirmRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)

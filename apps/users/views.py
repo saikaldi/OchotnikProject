@@ -2,8 +2,10 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import RegisterUserSerializer, ConfirmEmailSerializer, LoginUserSerializer, RequestPasswordResetSerializer, ConfirmPasswordResetSerializer
+from .serializers import RegisterUserSerializer, LoginUserSerializer, RequestPasswordResetSerializer, ConfirmPasswordResetSerializer
 from .models import User, EmailVerification
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse, OpenApiExample, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
@@ -18,6 +20,41 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterUserSerializer
 
+    @extend_schema(
+        description="Регистрация нового пользователя",
+        request=RegisterUserSerializer,
+        responses={
+            201: {
+                'description': 'Код подтверждения отправлен на email',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Код подтверждения отправлен'}
+                    }
+                }
+            },
+            500: {
+                'description': 'Ошибка отправки email',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Ошибка отправки email'}
+                    }
+                }
+            }
+        },
+        examples=[
+            OpenApiExample(
+                name="Пример запроса",
+                value={
+                    "email": "user@example.com",
+                    "username": "username",
+                    "password": "securepassword123",
+                    "password_confirm": "securepassword123",
+                    "last_name": "Иванов"
+                },
+                request_only=True
+            )
+        ]
+    )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -52,7 +89,54 @@ class RegisterView(generics.CreateAPIView):
 
 class ConfirmRegistrationView(APIView):
     permission_classes = [AllowAny]
-
+    @extend_schema(
+        description="Подтверждение email пользователя",
+        request=OpenApiTypes.OBJECT,
+        responses={
+            200: {
+                'description': 'Аккаунт подтвержден',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Аккаунт подтвержден', 'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczODg2MTQzMCwiaWF0IjoxNzM4Nzc1MDMwLCJqdGkiOiI5MDkxN2M1YjA1ODQ0MzhjYmZkNzBhMjNhYTE2YWMwMiIsInVzZXJfaWQiOjN9.yBE6C33a8MC4JtB4i-R2srXoLohf4uX0b_3f3PB3t8Y'}
+                    }
+                }
+            },            
+            400: {
+                'description': 'Неверный email',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Неверный email'}
+                    }
+                }
+            },
+            400: {
+                'description': 'Неверный код',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Неверный код'}
+                    }
+                }
+            },
+            500: {
+                'description': 'Ошибка подтверждения регистрации',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Ошибка подтверждения регистрации'}
+                    }
+                }
+            }
+        },
+        examples=[
+            OpenApiExample(
+                name="Пример запроса",
+                value={
+                    "email": "user@example.com",
+                    "code": "242171"
+                },
+                request_only=True
+            )
+        ]
+    )   
     def post(self, request, *args, **kwargs):
         try:
             email = request.data.get('email')
@@ -99,7 +183,39 @@ class ConfirmRegistrationView(APIView):
 class LoginView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = LoginUserSerializer
-
+    
+    @extend_schema(
+        description="Аутентификация пользователя",
+        request=LoginUserSerializer,
+        responses={
+            200: {
+                'description': 'Успешная аутентификация',
+                'content': {
+                    'application/json': {
+                        'example': {'token': 'access_token'}
+                    }
+                }
+            },
+            400: {
+                'description': 'Ошибка аутентификации',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Аккаунт не активирован'}
+                    }
+                }
+            }
+        },
+        examples=[
+            OpenApiExample(
+                name="Пример запроса",
+                value={
+                    "email": "user@example.com",
+                    "password": "securepassword123"
+                },
+                request_only=True
+            )
+        ]
+    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -113,14 +229,52 @@ class LoginView(generics.CreateAPIView):
 
 class RequestPasswordResetView(APIView):
     permission_classes = [IsAuthenticated]
-    
+    @extend_schema(
+        description="Запрос на сброс пароля",
+        request=RequestPasswordResetSerializer,
+        responses={
+            200: {
+                'description': 'Ссылка для смены пароля отправлена на email',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Ссылка для смены пароля отправлена на ваш email.'}
+                    }
+                }
+            },
+            404: {
+                'description': 'Пользователь не найден',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Пользователь не найден'}
+                    }
+                }
+            },
+            500: {
+                'description': 'Ошибка отправки email',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Ошибка отправки email'}
+                    }
+                }
+            }
+        },
+        examples=[
+            OpenApiExample(
+                name="Пример запроса",
+                value={
+                    "email": "user@example.com"
+                },
+                request_only=True
+            )
+        ]
+    )  
     def post(self, request):
         try:
             serializer = RequestPasswordResetSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             email = serializer.validated_data['email']
             user = User.objects.get(email=email)
-            token = secrets.token_urlsafe()  # Определение токена
+            token = secrets.token_urlsafe()                                 # Определение токена
             reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/?token={token}"
             send_mail(
                 'Перейдите по ссылке, чтобы сменить пароль',
@@ -137,6 +291,48 @@ class RequestPasswordResetView(APIView):
 
 class ConfirmPasswordResetView(APIView):
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        description="Подтверждение сброса пароля",
+        request=ConfirmPasswordResetSerializer,
+        responses={
+            200: {
+                'description': 'Пароль успешно изменен',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Пароль успешно изменен.'}
+                    }
+                }
+            },
+            404: {
+                'description': 'Пользователь не найден',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Пользователь не найден'}
+                    }
+                }
+            },
+            500: {
+                'description': 'Ошибка изменения пароля',
+                'content': {
+                    'application/json': {
+                        'example': {'message': 'Ошибка изменения пароля'}
+                    }
+                }
+            }
+        },
+        examples=[
+            OpenApiExample(
+                name="Пример запроса",
+                value={
+                    "email": "user@example.com",
+                    "new_password": "newsecurepassword123",
+                    "new_password_confirm": "newsecurepassword123"
+                },
+                request_only=True
+            )
+        ]
+    )
     
     def post(self, request):
         try:

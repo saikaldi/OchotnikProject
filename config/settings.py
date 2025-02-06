@@ -29,6 +29,8 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
     
     "rest_framework",
+    "drf_spectacular", 
+    
 ]
 
 PRODUCTS_APPS = [
@@ -46,6 +48,16 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+}
+
+# DRF Spectacular
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API для Охотника Онлайн Магазина',
+    'DESCRIPTION': 'API для Охотника Онлайн Магазина',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 BASE_URL = 'http://localhost:8000'
