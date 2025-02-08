@@ -13,11 +13,12 @@ User = get_user_model()
 
 class RegisterUserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=50)
+    frist_name = serializers.CharField(max_length=50)
+    last_name = serializers.CharField(max_length=50)
     email = serializers.EmailField(validators=[EmailValidator()])
     password = serializers.CharField(min_length=8)
     password_confirm = serializers.CharField(min_length=8)
     user_status = serializers.ChoiceField(choices=User.STATUS_CHOICES)
-    last_name = serializers.CharField(max_length=50)
 
     def validate(self, data):
         if data['password'] != data['password_confirm']:

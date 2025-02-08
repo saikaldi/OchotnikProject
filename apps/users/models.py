@@ -1,8 +1,4 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
-from django.core.validators import RegexValidator
-from django.db.models.signals import post_save
-from django.utils.timezone import now
-from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
@@ -34,8 +30,9 @@ class User(AbstractUser, PermissionsMixin):
         ('Менеджер', 'Менеджер'),
         ('Пользователь', 'Пользователь'),
     ]
+    frist_name = models.CharField(max_length=50, verbose_name="Имя", blank=True, null=True) 
     last_name = models.CharField(max_length=50, verbose_name="Фамилия", blank=True, null=True)
-    user_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Пользователь", verbose_name="Статус")
+    user_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Пользователь", blank=True, null=True, verbose_name="Статус")
     email = models.EmailField(unique=True, verbose_name="Email")
     is_staff = models.BooleanField(default=False)                # Флаг для статуса администратора
     is_active = models.BooleanField(default=False)               # Флаг для активности пользователя
@@ -48,7 +45,7 @@ class User(AbstractUser, PermissionsMixin):
     
     
     def __str__(self):
-        return self.email
+        return f'{self.id} - {self.email}'
     
     @property
     def is_admin(self):                                          # Проверка администратора

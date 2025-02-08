@@ -46,11 +46,13 @@ class RegisterView(generics.CreateAPIView):
             OpenApiExample(
                 name="Пример запроса",
                 value={
+                    "frist_name": "Имя",
+                    "last_name": "Фамилия",
+                    "username": "Имя пользователя",
+                    "user_status": "Пользователь",
                     "email": "user@example.com",
-                    "username": "username",
                     "password": "securepassword123",
-                    "password_confirm": "securepassword123",
-                    "last_name": "Иванов"
+                    "password_confirm": "securepassword123"
                 },
                 request_only=True
             )
@@ -62,11 +64,12 @@ class RegisterView(generics.CreateAPIView):
         user_data = serializer.validated_data
 
         user = User.objects.create_user(
-            email=user_data['email'],
+            frist_name=user_data['frist_name'],
+            last_name=user_data['last_name'],
             username=user_data['username'],
+            email=user_data['email'],
             password=user_data['password'],
             user_status=user_data['user_status'],
-            last_name=user_data['last_name']
         )
 
         verification_code = EmailVerification.objects.create(
@@ -99,7 +102,7 @@ class ConfirmRegistrationView(APIView):
                 'description': 'Аккаунт подтвержден',
                 'content': {
                     'application/json': {
-                        'example': {'message': 'Аккаунт подтвержден', 'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczODg2MTQzMCwiaWF0IjoxNzM4Nzc1MDMwLCJqdGkiOiI5MDkxN2M1YjA1ODQ0MzhjYmZkNzBhMjNhYTE2YWMwMiIsInVzZXJfaWQiOjN9.yBE6C33a8MC4JtB4i-R2srXoLohf4uX0b_3f3PB3t8Y'}
+                        'example': {'message': 'Аккаунт подтвержден', 'token': 'yBE6C33a8MC4JtB4i-R2srXoLohf4uX0b_3f3PB3t8Y'}
                     }
                 }
             },            
@@ -108,14 +111,6 @@ class ConfirmRegistrationView(APIView):
                 'content': {
                     'application/json': {
                         'example': {'message': 'Неверный email'}
-                    }
-                }
-            },
-            400: {
-                'description': 'Неверный код',
-                'content': {
-                    'application/json': {
-                        'example': {'message': 'Неверный код'}
                     }
                 }
             },
@@ -185,7 +180,6 @@ class ConfirmRegistrationView(APIView):
 class LoginView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = LoginUserSerializer
-    
     @extend_schema(
         summary="Аутентификация пользователя",
         description="Аутентификация пользователя",

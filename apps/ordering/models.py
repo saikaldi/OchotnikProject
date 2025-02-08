@@ -69,8 +69,10 @@ class Order(models.Model):
                 unique_slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = unique_slug
-
-        self.total_sum = self.cart.total_price * self.quantity
+        if self.cart.product.is_discount:
+            self.total_sum = self.cart.product.discount_price * self.quantity
+        else:
+            self.total_sum = self.cart.product.price * self.quantity          
         if self.status == 'Оформлено':
             send_mail(
                 'Ваш заказ на обработке',

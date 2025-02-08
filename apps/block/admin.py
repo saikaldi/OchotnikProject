@@ -13,4 +13,4 @@ class AboutUsAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     
 admin.site.register(Block, BlockAdmin)
-admin.site.register(AboutUs, AboutUsAdmin)
+admin

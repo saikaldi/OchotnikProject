@@ -11,7 +11,7 @@ class Block(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")     
     
     def __str__(self):
-        return self.name
+        return self.title
     
     def save(self, *args, **kwargs):
         if not self.slug or self.slug.strip() == "":
