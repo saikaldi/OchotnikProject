@@ -21,6 +21,7 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterUserSerializer
 
     @extend_schema(
+        summary="Регистрация нового пользователя",
         description="Регистрация нового пользователя",
         request=RegisterUserSerializer,
         responses={
@@ -90,6 +91,7 @@ class RegisterView(generics.CreateAPIView):
 class ConfirmRegistrationView(APIView):
     permission_classes = [AllowAny]
     @extend_schema(
+        summary="Подтверждение email пользователя",
         description="Подтверждение email пользователя",
         request=OpenApiTypes.OBJECT,
         responses={
@@ -185,6 +187,7 @@ class LoginView(generics.CreateAPIView):
     serializer_class = LoginUserSerializer
     
     @extend_schema(
+        summary="Аутентификация пользователя",
         description="Аутентификация пользователя",
         request=LoginUserSerializer,
         responses={
@@ -230,6 +233,7 @@ class LoginView(generics.CreateAPIView):
 class RequestPasswordResetView(APIView):
     permission_classes = [IsAuthenticated]
     @extend_schema(
+        summary="Запрос на сброс пароля",
         description="Запрос на сброс пароля",
         request=RequestPasswordResetSerializer,
         responses={
@@ -293,6 +297,7 @@ class ConfirmPasswordResetView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        summary="Подтверждение сброса пароля и изменение пароля",
         description="Подтверждение сброса пароля",
         request=ConfirmPasswordResetSerializer,
         responses={

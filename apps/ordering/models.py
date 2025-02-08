@@ -69,8 +69,8 @@ class Order(models.Model):
                 unique_slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = unique_slug
-        self.quantity = self.cart.quantity          
-        self.total_sum = self.cart.total_price
+
+        self.total_sum = self.cart.total_price * self.quantity
         if self.status == 'Оформлено':
             send_mail(
                 'Ваш заказ на обработке',
@@ -79,7 +79,6 @@ class Order(models.Model):
                 [self.user.email],
                 fail_silently=False,
             )
-
         super().save(*args, **kwargs)
         
     class Meta:

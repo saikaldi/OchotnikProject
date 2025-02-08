@@ -3,7 +3,7 @@ from .models import Order, PaymentService, Payment
 # Register your models here.
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('user', 'cart', 'address', 'status', 'total_sum', 'date', 'created_at', 'updated_at')
+    list_display = ('user', 'cart', 'address', 'status', 'quantity', 'total_sum', 'date', 'updated_at')
     prepopulated_fields = {"slug": ("user",)}
 
 class PaymentServiceAdmin(admin.ModelAdmin):

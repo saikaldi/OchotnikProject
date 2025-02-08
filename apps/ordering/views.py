@@ -60,6 +60,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             return OrderDetailSerializer
         return OrderSerializer
     
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
+    
 #"""Документация для оплаты"""
 @extend_schema_view(
     list=extend_schema(
@@ -104,6 +107,9 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Payment.objects.filter(user=self.request.user)
     
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
 #"""""Документация для сервиса оплаты"""
 @extend_schema_view(
     list=extend_schema(
@@ -147,3 +153,6 @@ class PaymentServiceViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         return PaymentService.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

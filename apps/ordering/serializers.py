@@ -7,7 +7,7 @@ from ..personal_data.serializers import UserAddressSerializer
 class OrderSerializer(serializers.ModelSerializer):  
     class Meta:
         model = Order   
-        fields = ['id', 'status', 'user', 'cart', 'address', 'date', 'created_at', 'updated_at']
+        fields = ['id', 'status', 'user', 'cart', 'quantity', 'total_sum', 'address', 'date', 'created_at', 'updated_at']
 
 class OrderListSerializer(serializers.ModelSerializer):
     class Meta:

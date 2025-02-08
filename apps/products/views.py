@@ -230,6 +230,9 @@ class CartViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
         carts = Cart.objects.filter(user=request.user)
@@ -319,6 +322,9 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         return FavoriteProduct.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
         favorite_products = FavoriteProduct.objects.filter(user=self.request.user)
@@ -408,3 +414,5 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Review.objects.filter(user=self.request.user)
     
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
