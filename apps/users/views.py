@@ -225,7 +225,7 @@ class LoginView(generics.CreateAPIView):
         return Response({'token': str(refresh.access_token)}, status=status.HTTP_200_OK)    
 
 class RequestPasswordResetView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     @extend_schema(
         summary="Запрос на сброс пароля",
         description="Запрос на сброс пароля",
@@ -272,8 +272,9 @@ class RequestPasswordResetView(APIView):
             serializer.is_valid(raise_exception=True)
             email = serializer.validated_data['email']
             user = User.objects.get(email=email)
-            token = secrets.token_urlsafe()                                 # Определение токена
-            reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/?token={token}"
+            # token = secrets.token_urlsafe()                                 # Определение токена
+            # reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/?token={token}"
+            reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/"
             send_mail(
                 'Перейдите по ссылке, чтобы сменить пароль',
                 f'Перейдите по ссылке, чтобы сменить пароль: {reset_url}',

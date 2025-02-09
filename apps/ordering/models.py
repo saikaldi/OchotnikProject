@@ -1,3 +1,4 @@
+import logging
 from django.db import models
 from slugify import slugify
 from django.conf import settings
@@ -5,6 +6,7 @@ from ..products.models import Cart
 from ..personal_data.models import UserAddress, UserPymentCard
 from django.core.mail import send_mail
 
+logger = logging.getLogger(__name__)
 
 # Create your models here.
 class PaymentService(models.Model):
@@ -42,9 +44,8 @@ class Order(models.Model):
     CHOICES_STATUS = (
         ('Оформлено', 'Оформлено'),
         ('Оплачено', 'Оплачено'),
-        ('Отменено', 'Отменено'),
-        ('Выполнено', 'Выполнено'),
-        ('Не выполнено', 'Не выполнено'),
+        ('Не оплачено', 'Не оплачено'),
+        ('Отменено', 'Отменено')
     )    
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders', verbose_name='Пользователь')
     cart = models.ForeignKey(Cart,  on_delete=models.CASCADE, related_name='orders', verbose_name='Корзина товаров')
@@ -76,7 +77,7 @@ class Order(models.Model):
         if self.status == 'Оформлено':
             send_mail(
                 'Ваш заказ на обработке',
-                'оплатите что бы получить свой товар!',
+                'Оплатите что бы получить свой товар!',
                 'admin@example.com',
                 [self.user.email],
                 fail_silently=False,
@@ -92,8 +93,7 @@ class Payment(models.Model):
     CHOICES_STATUS = (
         ('Оплачено', 'Оплачено'),
         ('Отменено', 'Отменено'),
-        ('Выполнено', 'Выполнено'),
-        ('Не выполнено', 'Не выполнено'),
+        ('Ошибка оплаты', 'Ошибка оплаты')
     )    
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments', verbose_name='Пользователь')
     payment_service = models.ForeignKey(PaymentService, on_delete=models.CASCADE, related_name='payments', verbose_name='Сервис оплаты')
@@ -109,6 +109,7 @@ class Payment(models.Model):
         return f'Оплата {self.id} - {self.user.username}'
     
     def save(self, *args, **kwargs):
+        """Сохраняет платеж и обновляет статус заказа в зависимости от статуса оплаты."""
         if not self.slug or self.slug.strip() == "":
             base_slug = slugify(self.user.username)
             unique_slug = base_slug
@@ -117,20 +118,43 @@ class Payment(models.Model):
                 unique_slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = unique_slug   
-        if self.status == 'Оплачено':
-            send_mail(
-                'Ваш оплата принята!',
-                'Ваш заказ уже на дороге!',
-                'admin@example.com',
-                [self.user.email],
-                fail_silently=False,
-            )
-        super().save(*args, **kwargs)
+        # Если оплата прошла успешно
+        if self.amount >= self.order.total_sum:
+            if self.order.status != 'Оплачено':
+                self.order.status = 'Оплачено'
+                self.order.save()        
+                try:
+                    send_mail(
+                        'Ваш оплата принята!',
+                        'Ваш заказ уже на дороге!',
+                        'admin@example.com',
+                        [self.user.email],
+                        fail_silently=False,
+                    )
+                    logger.info(f"Уведомление об успешной оплате отправлено пользователю {self.user.username}.")
+                except Exception as e:
+                    logger.error(f"Ошибка при отправке уведомления: {e}")
         
+        # Если сумма оплаты меньше суммы заказа
+        else:
+            if self.amount !=self.order.total_sum:
+                self.order.status = 'Не оплачено'
+                self.order.save()
+                try:
+                    send_mail(
+                        'Ошибка оплаты',
+                        'Сумма оплаты недостаточна. Пожалуйста, проверьте данные и попробуйте еще раз.',
+                        'admin@example.com',
+                        [self.user.email],
+                        fail_silently=False,
+                    )
+                    logger.info(f"Уведомление о недостаточной сумме оплаты отправлено пользователю {self.user.username}.")
+                except Exception as e:
+                    logger.error(f"Ошибка при отправке уведомления: {e}")
+
+        super().save(*args, **kwargs)
+    
     class Meta:
         verbose_name = "Оплата"
         verbose_name_plural = "2. Оплаты"   
         ordering = ["-created_at"]
-        
-
-    
