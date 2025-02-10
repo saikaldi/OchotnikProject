@@ -6,7 +6,6 @@ router = DefaultRouter()
 router.register(r'orders', OrderViewSet, basename='orders-api')
 router.register(r'payments', PaymentViewSet, basename='payments')
 router.register(r'payment-services', PaymentServiceViewSet, basename='payment_services')
-urlpatterns = [
-    path('', include(router.urls)),
-]   
+
+urlpatterns = router.urls
 

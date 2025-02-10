@@ -39,7 +39,6 @@ class PaymentService(models.Model):
         verbose_name_plural = "1. Сервисы оплаты"
         ordering = ["-created_at"]
 
-
 class Order(models.Model):
     CHOICES_STATUS = (
         ('Оформлено', 'Оформлено'),

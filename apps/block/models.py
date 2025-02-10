@@ -29,7 +29,6 @@ class Block(models.Model):
         verbose_name_plural = "1. Блок компании"
         ordering = ["-created_at"]
         
-        
 class AboutUs(models.Model):
     name = models.CharField(max_length=155, verbose_name="Название")
     test = models.TextField(verbose_name="Текст")

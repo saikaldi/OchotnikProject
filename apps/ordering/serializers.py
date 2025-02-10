@@ -3,7 +3,6 @@ from .models import Order, Payment, PaymentService
 from ..products.serializers import ForCartSerializer
 from ..personal_data.serializers import UserAddressSerializer
 
-
 class OrderSerializer(serializers.ModelSerializer):  
     class Meta:
         model = Order   
