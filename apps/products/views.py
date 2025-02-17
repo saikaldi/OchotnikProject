@@ -8,79 +8,28 @@ from .serializers import CategorySerializer, ProductSerializer, CartSerializer, 
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse, OpenApiExample, OpenApiParameter
 
 #"""Документация для категории"""
-@extend_schema_view(
-    list=extend_schema(
-        summary="Список категорий",
-        description="Получение списка всех категорий",
-        responses={
-            200: OpenApiResponse(
-                response=CategorySerializer(many=True),
-                description="Список категорий"
-            )
-        },
-    ),
-    retrieve=extend_schema(
-        summary="Получение категории",
-        description="Получение категории по ID",
-        responses={
-            200: OpenApiResponse(
-                response=CategorySerializer,
-                description="Категория"
-            )
-        },
-    ),
-    create=extend_schema(
-        summary="Создание категории",
-        description="Создание новой категории",
-        request=CategorySerializer,
-        responses={
-            201: OpenApiResponse(
-                response=CategorySerializer,
-                description="Категория"
-            )
-        },
-    ),
-    update=extend_schema(
-        summary="Обновление категории",
-        description="Полное обновление категории по ID",
-        request=CategorySerializer,
-        responses={
-            200: OpenApiResponse(
-                response=CategorySerializer,
-                description="Категория"
-            )
-        },
-    ),
-    partial_update=extend_schema(
-        summary="Частичное обновление категории",
-        description="Частичное обновление категории по ID",
-        request=CategorySerializer,
-        responses={
-            200: OpenApiResponse(
-                response=CategorySerializer,
-                description="Категория"
-            )
-        },
-    ),
-    destroy=extend_schema(
-        summary="Удаление категории",
-        description="Удаление категории по ID",
-        responses={
-            204: OpenApiResponse(
-                response=None,
-                description="Категория удалена"
-            )
-        },
-    ),
+@extend_schema(
+    summary="Категория товаров",
+    description="Api для создания категории товаров",
+    examples=[
+        OpenApiExample(
+            "Пример запроса",
+            value={
+                "category_name": "название категори товаров",
+            },
+            request_only=True
+        )
+    ]
 )
+@extend_schema(tags=['Products category: Категория товаров'])
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 @extend_schema_view(
     list=extend_schema(
-        summary="Список товаров",
-        description="Получение списка всех товаров",
+        summary="Список товаров по категории",
+        description="Получение списка всех",
         responses={
             200: OpenApiResponse(
                 response=ProductSerializer(many=True),
@@ -89,59 +38,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
         },
     ),
     retrieve=extend_schema(
-        summary="Получение товара  с коментариями и похожими товарами",
-        description="Получение товара по ID",
-        responses={
-            200: OpenApiResponse(
-                response=ProductSerializer,
-                description="Товар"
-            )
-        },
-    ),
-    create=extend_schema(
-        summary="Создание товара",
-        description="Создание нового товара",
-        request=ProductSerializer,
-        responses={
-            201: OpenApiResponse(
-                response=ProductSerializer,
-                description="Товар"
-            )
-        },
-    ),
-    update=extend_schema(
-        summary="Обновление товара",
-        description="Полное обновление товара по ID",
-        request=ProductSerializer,
-        responses={
-            200: OpenApiResponse(
-                response=ProductSerializer,
-                description="Товар"
-            )
-        },
-    ),
-    partial_update=extend_schema(
-        summary="Частичное обновление товара",
-        description="Частичное обновление товара по ID",
-        request=ProductSerializer,
-        responses={
-            200: OpenApiResponse(
-                response=ProductSerializer,
-                description="Товар"
-            )
-        },
-    ),
-    destroy=extend_schema(
-        summary="Удаление товара",
-        description="Удаление товара по ID",
-        responses={
-            204: OpenApiResponse(
-                response=None,
-                description="Товар удален"
-            )
-        },
-    ),
+        summary="Получение товара c отзывами и похожими товарами",
+        description="Получение товара по ID"
+    )
 )
+@extend_schema(tags=['Products:Список товаров'])
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()    
     serializer_class = ProductSerializer
@@ -157,72 +58,189 @@ class ProductViewSet(viewsets.ModelViewSet):
                         "similar_products": similar_products_serializer.data}
                         )
       
-"""Документация для корзины"""
 @extend_schema_view(
     list=extend_schema(
         summary="Список корзин",
-        description="Получение списка всех корзин",
+        description="Получение списка всех корзин пользователей.",
         responses={
             200: OpenApiResponse(
                 response=CartSerializer(many=True),
-                description="Список корзин"
-            )
+                description="Список корзин успешно получен.",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value=[
+                            {
+                                "id": 1,
+                                "user_id": 1,   
+                                "product_id": 3,
+                                "quantity": 10,
+                                "total_price": 100,
+                            },
+                            {
+                                "id": 2,
+                                "user_id": 1,
+                                "product": 4,
+                                "quantity": 10,
+                                "total_price": 5000,
+                            },
+                        ],
+                    )
+                ],
+            ),
         },
     ),
     retrieve=extend_schema(
-        summary="Получение корзины",
-        description="Получение корзины по ID",
+        summary="Получение корзины по ID",
+        description="Получение деталей корзины по её уникальному идентификатору.",
         responses={
             200: OpenApiResponse(
                 response=CartSerializer,
-                description="Корзина"
-            )
+                description="Корзина успешно получена.",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": ("ID корзины ", 1),
+                            "user": ("ID пользователя ", 1),
+                            "product": ("ID товара ", 3),
+                            "quantity": ("Количество товара ", 10),
+                            "total_price":("Общая стоимость товара ", 100),
+                        },
+                    )
+                ],
+            ),
+            404: OpenApiResponse(
+                description="Корзина с указанным ID не найдена.",
+            ),
         },
     ),
     create=extend_schema(
         summary="Создание корзины",
-        description="Создание новой корзины",
+        description="Создание новой корзины для пользователя.",
         request=CartSerializer,
         responses={
             201: OpenApiResponse(
                 response=CartSerializer,
-                description="Корзина"
-            )
+                description="Корзина успешно создана.",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product": 3,
+                            "quantity": 10,
+                            "total_price": 100,
+                        },
+                    )
+                ],
+            ),
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
         },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "user": 1,
+                    "product": 3,
+                    "quantity": 10,
+                },
+            )
+        ],
     ),
     update=extend_schema(
         summary="Обновление корзины",
-        description="Полное обновление корзины по ID",
+        description="Полное обновление данных корзины по её ID.",
         request=CartSerializer,
         responses={
             200: OpenApiResponse(
                 response=CartSerializer,
-                description="Корзина"
-            )
+                description="Корзина успешно обновлена.",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product": 3,
+                            "quantity": 15,
+                            "total_price": 150,
+                        },
+                    )
+                ],
+            ),
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
+            404: OpenApiResponse(
+                description="Корзина с указанным ID не найдена.",
+            ),
         },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "user": 1,
+                    "product": 3,
+                    "quantity": 15,
+                },
+            )
+        ],
     ),
     partial_update=extend_schema(
         summary="Частичное обновление корзины",
-        description="Частичное обновление корзины по ID",
+        description="Частичное обновление данных корзины по её ID.",
         request=CartSerializer,
         responses={
             200: OpenApiResponse(
                 response=CartSerializer,
-                description="Корзина"
-            )
+                description="Корзина успешно обновлена.",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product": 3,
+                            "quantity": 15,
+                            "total_price": 150,
+                        },
+                    )
+                ],
+            ),
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
+            404: OpenApiResponse(
+                description="Корзина с указанным ID не найдена.",
+            ),
         },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "quantity": 15,
+                },
+            )
+        ],
     ),
     destroy=extend_schema(
         summary="Удаление корзины",
-        description="Удаление корзины по ID",
+        description="Удаление корзины по её ID.",
         responses={
             204: OpenApiResponse(
-                response=None,
-                description="Корзина удалена"
-            )
+                description="Корзина успешно удалена.",
+            ),
+            404: OpenApiResponse(
+                description="Корзина с указанным ID не найдена.",
+            ),
         },
     ),
 )
+@extend_schema(tags=["Cart: Корзина пользователя"])
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()   
     serializer_class = CartSerializer
@@ -257,8 +275,26 @@ class CartViewSet(viewsets.ModelViewSet):
         responses={
             200: OpenApiResponse(
                 response=FavoriteProductSerializer(many=True),
-                description="Список избранных товаров"
-            )
+                description="Список избранных товаров",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value=[
+                            {
+                                "id": 1,
+                                "user": 1,
+                                "product_id": 3,
+                            
+                            },
+                            {
+                                "id": 2,
+                                "user": 1,
+                                "product_id": 4,
+                            },
+                        ],
+                    )
+                ],
+            ),
         },
     ),
     retrieve=extend_schema(
@@ -267,8 +303,21 @@ class CartViewSet(viewsets.ModelViewSet):
         responses={
             200: OpenApiResponse(
                 response=FavoriteProductSerializer,
-                description="Избранный товар"
-            )
+                description="Избранный товар",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product_id": 3,
+                        },
+                    )
+                ],
+            ),
+            404: OpenApiResponse(
+                description="Избранный товар с указанным ID не найден.",
+            ),
         },
     ),
     create=extend_schema(
@@ -278,43 +327,82 @@ class CartViewSet(viewsets.ModelViewSet):
         responses={
             201: OpenApiResponse(
                 response=FavoriteProductSerializer,
-                description="Избранный товар"
-            )
+                description="Избранный товар",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product_id": 3,
+                        },
+                    )
+                ],
+            ),            
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
         },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "user": 1,
+                    "product_id": 3,
+                },
+            )
+        ],        
     ),
     update=extend_schema(
         summary="Обновление избранного товара",
-        description="Полное обновление избранного товара по ID",
-        request=FavoriteProductSerializer,
+        description="Полное обновление избранного товара по его ID",
+        request=FavoriteProductSerializer,                
         responses={
             200: OpenApiResponse(
                 response=FavoriteProductSerializer,
-                description="Избранный товар"
-            )
+                description="Избранный товар",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product_id": 3,
+                        },
+                    )
+                ],
+            ),
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
+            404: OpenApiResponse(
+                description="Избранный товар с указанным ID не найден.",
+            ),
         },
-    ),
-    partial_update=extend_schema(
-        summary="Частичное обновление избранного товара",
-        description="Частичное обновление избранного товара по ID",
-        request=FavoriteProductSerializer,
-        responses={
-            200: OpenApiResponse(
-                response=FavoriteProductSerializer,
-                description="Избранный товар"
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "user": 1,
+                    "product_id": 3,
+                },
             )
-        },
+        ],
     ),
     destroy=extend_schema(
         summary="Удаление избранного товара",
-        description="Удаление избранного товара по ID",
+        description="Удаление избранного товара по его ID.",
         responses={
             204: OpenApiResponse(
-                response=None,
-                description="Избранный товар удален"
-            )
+                description="Избранный товар успешно удален.",
+            ),
+            404: OpenApiResponse(
+                description="Избранный товар с указанным ID не найден.",
+            ),
         },
-    ),
+    ),      
 )
+@extend_schema(tags=["FavoriteProduct: Избранные товары"])
 class FavoriteProductViewSet(viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()    
     serializer_class = FavoriteProductSerializer
@@ -343,69 +431,192 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
 """Документация для отзыва"""
 @extend_schema_view(
     list=extend_schema(
-        summary="Список отзывов",
-        description="Получение списка всех отзывов",
+        summary="Список отзывов", 
+        description="Получение списка всех отзывов", 
         responses={
             200: OpenApiResponse(
                 response=ReviewSerializer(many=True),
                 description="Список отзывов"
             )
         },
+        examples=[
+            OpenApiExample(
+                "Пример ответа",
+                value=[
+                    {
+                        "id": 1,
+                        "user": 1,
+                        "product_id": 3,
+                        "text": "Отличный товар",
+                        "rating": ("**"),
+                        "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                        "created_at": "2023-05-25T13:27:53.020Z",
+                    },
+                    {
+                        "id": 2,
+                        "user": 1,
+                        "product_id": 4,
+                        "text": "Хороший товар",
+                        "rating": ("***"),
+                        "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                        "created_at": "2023-05-25T13:27:53.020Z",
+                    },
+                ],
+            )
+        ],  
     ),
     retrieve=extend_schema(
         summary="Получение отзыва",
-        description="Получение отзыва по ID",
+        description="Получение отзыва по его ID",
         responses={
             200: OpenApiResponse(
                 response=ReviewSerializer,
                 description="Отзыв"
             )
         },
+        examples=[
+            OpenApiExample(
+                "Пример ответа",
+                value={
+                    "id": 1,
+                    "user": 1,
+                    "product_id": 3,
+                    "text": "Отличный товар",
+                    "rating": ("*****"),
+                    "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                    "created_at": "2023-05-25T13:27:53.020Z",
+                },
+            )
+        ],
     ),
     create=extend_schema(
-        summary="Создание отзыва",
+        summary="Создание отзыва",  
         description="Создание нового отзыва",
         request=ReviewSerializer,
         responses={
             201: OpenApiResponse(
                 response=ReviewSerializer,
-                description="Отзыв"
-            )
+                description="Отзыв",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product_id": 3,
+                            "text": "Отличный товар",
+                            "rating": ("****"),
+                            "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                            "created_at": "2023-05-25T13:27:53.020Z",
+                        },
+                    )
+                ],
+            ),
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
         },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "user": 1,
+                    "product_id": 3,
+                    "text": "Отличный товар",
+                    "rating": ("****"),
+                    "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                },
+            )
+        ],
     ),
     update=extend_schema(
         summary="Обновление отзыва",
-        description="Полное обновление отзыва по ID",
+        description="Полное обновление отзыва по его ID",   
         request=ReviewSerializer,
         responses={
             200: OpenApiResponse(
-                response=ReviewSerializer,
-                description="Отзыв"
-            )
+                response=ReviewSerializer,                
+                description="Отзыв",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product_id": 3,
+                            "text": "Отличный товар",
+                            "rating": ("***"),
+                            "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                            "created_at": "2023-05-25T13:27:53.020Z",
+                        },
+                    )
+                ],
+            ),
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
+            404: OpenApiResponse(
+                description="Отзыв с указанным ID не найден.",
+            ),
         },
     ),
-    partial_update=extend_schema(
+    partial_update=extend_schema(   
         summary="Частичное обновление отзыва",
-        description="Частичное обновление отзыва по ID",
+        description="Частичное обновление отзыва по его ID",
         request=ReviewSerializer,
         responses={
-            200: OpenApiResponse(
+            200: OpenApiResponse(                
                 response=ReviewSerializer,
-                description="Отзыв"
-            )
+                description="Отзыв",
+                examples=[
+                    OpenApiExample(
+                        "Пример ответа",
+                        value={
+                            "id": 1,
+                            "user": 1,
+                            "product_id": 3,
+                            "text": "Отличный товар",
+                            "rating": ("***"),
+                            "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                            "created_at": "2023-05-25T13:27:53.020Z",
+                        },
+                    )
+                ],
+            ),
+            400: OpenApiResponse(
+                description="Некорректные данные в запросе.",
+            ),
+            404: OpenApiResponse(
+                description="Отзыв с указанным ID не найден.",
+            ),  
         },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "user": 1,
+                    "product_id": 3,
+                    "text": "Отличный товар",
+                    "rating": 5,
+                    "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                },
+            )
+        ],
     ),
     destroy=extend_schema(
         summary="Удаление отзыва",
-        description="Удаление отзыва по ID",
+        description="Удаление отзыва по его ID.",
         responses={
             204: OpenApiResponse(
-                response=None,
-                description="Отзыв удален"
-            )
+                description="Отзыв успешно удален.",
+            ),
+            404: OpenApiResponse(
+                description="Отзыв с указанным ID не найден.",
+            ),
         },
-    ),
+    ),  
 )   
+@extend_schema(tags=["Review: Отзывы пользователей"])
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()    
     serializer_class = ReviewSerializer

@@ -13,6 +13,7 @@ class UserProfile(models.Model):
     phone_number = models.CharField("Номер телефона", max_length=55,
                                 validators=[RegexValidator(regex=r"^(0\d{9}|\+996\d{9})$",
                                 message="Введите правильный номер телефона")],)
+    email = models.EmailField(max_length=255, verbose_name="Email", unique=True, db_index=True)
     slug = models.SlugField(max_length=100, unique=True, db_index=True, verbose_name="slug", blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
@@ -31,6 +32,9 @@ class UserProfile(models.Model):
                 counter += 1
             self.slug = unique_slug
         self.email = self.user.email
+        self.first_name = self.user.first_name
+        self.last_name = self.user.last_name
+        self.birth_date = self.user.date_joined
         super().save(*args, **kwargs)
         
     class Meta:
@@ -39,7 +43,7 @@ class UserProfile(models.Model):
         ordering = ["-created_at"]
 
 class UserAddress(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
     country = models.CharField(max_length=255, verbose_name="Страна")
     city = models.CharField(max_length=255, verbose_name="Город")
     district = models.CharField(max_length=255, verbose_name="Район")
@@ -73,8 +77,7 @@ class UserAddress(models.Model):
 class UserPymentCard(models.Model):
     cart_regex = RegexValidator(regex=r'^\d{12}$', message="Номер карты должен состоять из 12 цифр")
     cvv = RegexValidator(regex=r'^\d{3}$', message="CVV должен состоять из 3 цифр")
-    
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
     card = models.CharField(max_length=12, verbose_name="Номер карты", validators=[cart_regex])
     cardholder_name = models.CharField(max_length=255, verbose_name="Имя владельца")
     expiration_date = models.DateField(verbose_name="Дата окончания срока действия")

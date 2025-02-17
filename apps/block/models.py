@@ -31,7 +31,7 @@ class Block(models.Model):
         
 class AboutUs(models.Model):
     name = models.CharField(max_length=155, verbose_name="Название")
-    test = models.TextField(verbose_name="Текст")
+    text = models.TextField(verbose_name="Текст")
     photo = models.ImageField(upload_to="about_us_photos", verbose_name="Изображение")
     slug = models.SlugField(max_length=100, unique=True, verbose_name="slug", blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")

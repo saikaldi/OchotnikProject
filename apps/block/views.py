@@ -5,56 +5,44 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
 
 # Create your views here.
 
-@extend_schema_view(
-    list=extend_schema(
-        summary="Список блоков",
-        description="Получение списка всех блоков",
-        responses={
-            200: OpenApiResponse(
-                response=BlockSerializer(many=True),
-                description="Список блоков"
-            )
-        },
-    ),
-    retrieve=extend_schema(
-        summary="Получение блока",
-        description="Получение блока по ID",
-        responses={
-            200: OpenApiResponse(
-                response=BlockSerializer,
-                description="Блок"
-            )
-        },
-    ),
+@extend_schema(
+    summary="Блок компании",
+    description="Api для создания блока компании",
+    tags=['Block: Блок компании'],
+    examples=[
+        OpenApiExample(
+            "Пример запроса",
+            value={
+                "title": "Название блока",
+                "text": "Текст блока",
+                "photo": "https://www.example.com/image.jpg",
+            },
+            request_only=True
+        )
+    ]
 )
-class BlockViewSet(viewsets.ModelViewSet):
+class BlockViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Block.objects.all()
     serializer_class = BlockSerializer  
     
-@extend_schema_view(
-    list=extend_schema(
-        summary="Список о нас",
-        description="Получение списка всех о нас",
-        responses={
-            200: OpenApiResponse(
-                response=AboutUsSerializer(many=True),
-                description="Список о нас"
-            )
-        },
-    ),
-    retrieve=extend_schema(
-        summary="Получение о нас",
-        description="Получение о нас по ID",
-        responses={
-            200: OpenApiResponse(
-                response=AboutUsSerializer,
-                description="О нас"
-            )
-        },
-    ),
+@extend_schema(
+    summary="О нас",
+    description="Api для создания о нас",
+    request=AboutUsSerializer,
+    tags=['Block: О нас'],
+    examples=[
+        OpenApiExample(
+            "Пример запроса",
+            value={
+                "title": "Название публикации",
+                "text": "Текст публикации",
+                "photo": "https://www.example.com/image.jpg",
+            },
+            request_only=True
+        )
+    ]
 )
-    
-class AboutUsViewSet(viewsets.ModelViewSet):
+class AboutUsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AboutUs.objects.all()
     serializer_class = AboutUsSerializer
     

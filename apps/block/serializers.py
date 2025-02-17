@@ -9,4 +9,4 @@ class BlockSerializer(serializers.ModelSerializer):
 class AboutUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutUs
-        fields = ['id', 'name', 'test', 'photo', 'created_at']
+        fields = ['id', 'name', 'text', 'photo', 'created_at']
