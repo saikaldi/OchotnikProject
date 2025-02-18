@@ -3,10 +3,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Order, Payment, PaymentService
 from .serializers import OrderSerializer, OrderDetailSerializer, PaymentSerializer, PaymentServiceSerializer
-from ..products.models import Product
-from ..products.serializers import ProductSerializer, CartSerializer
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse, OpenApiExample, OpenApiParameter
 
 # Create your views here.
@@ -14,39 +10,31 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
 #"""Документация для заказа"""
 @extend_schema_view(
     list=extend_schema(
-        summary="Список заказов",
-        description="Получение списка всех заказов",
-        responses={200: OrderSerializer(many=True)},
-    ),
+        description="Получение списка заказов пользователя",
+        responses={200: OpenApiResponse(OrderSerializer(many=True))},
+    ),  
     retrieve=extend_schema(
-        summary="Получение заказа",
-        description="Получение заказа по ID",
-        responses={200: OrderSerializer},
+        description="Получение одного заказа пользователя",
+        responses={200: OpenApiResponse(OrderSerializer(many=False))},
     ),
     create=extend_schema(
-        summary="Создание заказа",
-        description="Создание нового заказа",
-        request=OrderSerializer,
-        responses={201: OrderSerializer},
+        description="Создание нового заказа пользователя",
+        responses={201: OpenApiResponse(OrderSerializer(many=False))},
     ),
     update=extend_schema(
-        summary="Обновление заказа",
-        description="Полное обновление заказа по ID",
-        request=OrderSerializer,
-        responses={200: OrderSerializer},
-    ),
+        description="Обновление заказа пользователя",
+        responses={200: OpenApiResponse(OrderSerializer(many=False))},
+    ),  
     partial_update=extend_schema(
-        summary="Частичное обновление заказа",
-        description="Частичное обновление заказа по ID",
-        request=OrderSerializer,
-        responses={200: OrderSerializer},
+        description="Изменение части заказа пользователя",  
+        responses={200: OpenApiResponse(OrderSerializer(many=False))},
     ),
     destroy=extend_schema(
-        summary="Удаление заказа",
-        description="Удаление заказа по ID",
-        responses={204: None},
+        description="Удаление заказа пользователя",
+        responses={204: OpenApiResponse(None)},
     ),
 )
+@extend_schema(tags=[["Order: Заказ"]])
 class OrderViewSet(viewsets.ModelViewSet):  
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -65,40 +53,14 @@ class OrderViewSet(viewsets.ModelViewSet):
     
 #"""Документация для оплаты"""
 @extend_schema_view(
-    list=extend_schema(
-        summary="Список оплат",
-        description="Получение списка всех оплат",
-        responses={200: PaymentSerializer(many=True)},
-    ),
-    retrieve=extend_schema(
-        summary="Получение оплаты",
-        description="Получение оплаты по ID",
-        responses={200: PaymentSerializer},
-    ),
-    create=extend_schema(
-        summary="Создание оплаты",
-        description="Создание новой оплаты",
-        request=PaymentSerializer,
-        responses={201: PaymentSerializer},
-    ),
-    update=extend_schema(
-        summary="Обновление оплаты",
-        description="Полное обновление оплаты по ID",
-        request=PaymentSerializer,
-        responses={200: PaymentSerializer},
-    ),
-    partial_update=extend_schema(
-        summary="Частичное обновление оплаты",
-        description="Частичное обновление оплаты по ID",
-        request=PaymentSerializer,
-        responses={200: PaymentSerializer},
-    ),
-    destroy=extend_schema(
-        summary="Удаление оплаты",
-        description="Удаление оплаты по ID",
-        responses={204: None},
-    ),
+    list=extend_schema(description="Получение списка всех оплат"),  
+    retrieve=extend_schema(description="Получение оплаты по ID"),
+    create=extend_schema(description="Создание новой оплаты"),
+    update=extend_schema(description="Обновление оплаты"),
+    partial_update=extend_schema(description="Изменение части оплаты"),  
+    destroy=extend_schema(description="Удаление оплаты"),   
 )
+@extend_schema(tags=[["Payment: Оплата"]])
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
@@ -146,6 +108,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
         responses={204: None},
     ),
 )
+@extend_schema(tags=[["Payment: Сервис оплаты"]])
 class PaymentServiceViewSet(viewsets.ModelViewSet):
     queryset = PaymentService.objects.all()
     serializer_class = PaymentServiceSerializer
