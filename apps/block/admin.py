@@ -9,8 +9,8 @@ class BlockAdmin(admin.ModelAdmin):
     
 class AboutUsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'created_at', 'updated_at')
-    search_fields = ('name', 'test')
+    search_fields = ('name', 'text')
     prepopulated_fields = {"slug": ("name",)}
     
 admin.site.register(Block, BlockAdmin)
-admin
+admin.site.register(AboutUs, AboutUsAdmin)

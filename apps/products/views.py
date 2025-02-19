@@ -1,9 +1,11 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from .models import Category, Product, Cart, FavoriteProduct, Review
+from .filters import CategoryFilter, ProductFilter, CartFilter, FavoriteProductFilter, ReviewFilter
 from .serializers import CategorySerializer, ProductSerializer, CartSerializer, FavoriteProductSerializer, ReviewSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse, OpenApiExample, OpenApiParameter
 
@@ -25,6 +27,8 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_class = CategoryFilter
 
 @extend_schema_view(
     list=extend_schema(
@@ -46,6 +50,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()    
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_class = ProductFilter
     
     def retrieve(self, request, pk=None, *args, **kwargs):
         product = get_object_or_404(Product, pk=pk)
@@ -245,6 +251,8 @@ class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()   
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filter_class = CartFilter
     
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
