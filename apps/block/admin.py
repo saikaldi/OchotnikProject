@@ -20,9 +20,6 @@ class BaseAdmin(admin.ModelAdmin):
         generate_unique_slug(self.model, 'slug', 'title', obj)
         super().save_model(request, obj, form, change)
 
-class BlockAdmin(BaseAdmin):
-    pass
-
 class AboutUsAdmin(BaseAdmin):
     list_display = ('id', 'name', 'created_at', 'updated_at')
     search_fields = ('name', 'text')
