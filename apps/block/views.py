@@ -23,6 +23,7 @@ from drf_spectacular.utils import (
                 "title": "Название блога",
                 "text": "Текст блога",
                 "photo": "https://www.example.com/image.jpg",
+                "video": "https://www.example.com/video.mp4",
             },
             request_only=True,
         )
