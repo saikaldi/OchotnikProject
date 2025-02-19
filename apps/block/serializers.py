@@ -4,7 +4,7 @@ from .models import Block, AboutUs
 class BlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Block
-        fields = ['id', 'title', 'text', 'photo', 'video', 'slug', 'created_at']
+        fields = ['id', 'title', 'text', 'photo', 'video',  'created_at']
         
 class AboutUsSerializer(serializers.ModelSerializer):
     class Meta:
