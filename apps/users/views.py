@@ -81,7 +81,7 @@ class RegisterView(generics.CreateAPIView):
             user.delete()
             return Response({'message': 'Ошибка отправки email'}, status=status.HTTP_400_BAD_REQUEST)
         
-        return Response({'message': 'Код подтверждения отправлен'}, status=status.HTTP_200)
+        return Response({'message': 'Код подтверждения отправлен'}, status=status.HTTP_200_OK)
     
     
 @extend_schema(
@@ -234,7 +234,7 @@ class LoginView(generics.CreateAPIView):
 )
 @extend_schema(tags=['Password Reset: Сброс пароля'])
 class RequestPasswordResetView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
  
     def post(self, request):
         try:
@@ -242,9 +242,9 @@ class RequestPasswordResetView(APIView):
             serializer.is_valid(raise_exception=True)
             email = serializer.validated_data['email']
             user = User.objects.get(email=email)
-            # token = secrets.token_urlsafe()                                 # Определение токена
-            # reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/?token={token}"
-            reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/"
+            token = secrets.token_urlsafe()                                 # Определение токена
+            reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/?token={token}"
+            # reset_url = f"{settings.BASE_URL}/api/v1/auth/confirm-password-reset/"
             send_mail(
                 'Перейдите по ссылке, чтобы сменить пароль',
                 f'Перейдите по ссылке, чтобы сменить пароль: {reset_url}',
@@ -290,7 +290,7 @@ class RequestPasswordResetView(APIView):
 )
 @extend_schema(tags=['Password Reset: Сброс пароля'])
 class ConfirmPasswordResetView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         try:
