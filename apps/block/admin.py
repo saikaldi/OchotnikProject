@@ -11,7 +11,7 @@ def generate_unique_slug(model, slug_field, source_field, instance):
             i += 1
         setattr(instance, slug_field, slug)
 
-class BaseAdmin(admin.ModelAdmin):
+class BlockAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "created_at", "updated_at")
     search_fields = ("title", "description")
     exclude = ("slug",)
@@ -20,7 +20,7 @@ class BaseAdmin(admin.ModelAdmin):
         generate_unique_slug(self.model, 'slug', 'title', obj)
         super().save_model(request, obj, form, change)
 
-class AboutUsAdmin(BaseAdmin):
+class AboutUsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'created_at', 'updated_at')
     search_fields = ('name', 'text')
 
