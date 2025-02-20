@@ -5,7 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from .models import Category, Product, Cart, FavoriteProduct, Review
-from .filters import CategoryFilter, ProductFilter, CartFilter, FavoriteProductFilter, ReviewFilter
+from .filters import ProductFilter, CategoryFilter, CartFilter, FavoriteProductFilter, ReviewFilter
 from .serializers import CategorySerializer, ProductSerializer, CartSerializer, FavoriteProductSerializer, ReviewSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse, OpenApiExample, OpenApiParameter
 
@@ -28,7 +28,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = [DjangoFilterBackend]
-    filter_class = CategoryFilter
+    filterset_class = CategoryFilter
 
 @extend_schema_view(
     list=extend_schema(
@@ -51,7 +51,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()    
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
-    filter_class = ProductFilter
+    filterset_class = ProductFilter
     
     def retrieve(self, request, pk=None, *args, **kwargs):
         product = get_object_or_404(Product, pk=pk)
@@ -252,7 +252,7 @@ class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filter_class = CartFilter
+    filterset_class = CartFilter
     
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
@@ -415,6 +415,9 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
     queryset = FavoriteProduct.objects.all()    
     serializer_class = FavoriteProductSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = FavoriteProductFilter
+    
     
     def get_queryset(self):
         return FavoriteProduct.objects.filter(user=self.request.user)
@@ -629,6 +632,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()    
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ReviewFilter
 
     def get_queryset(self):
         return Review.objects.filter(user=self.request.user)
