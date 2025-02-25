@@ -23,6 +23,7 @@ class BlockAdmin(admin.ModelAdmin):
 class AboutUsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'created_at', 'updated_at')
     search_fields = ('name', 'text')
+    exclude = ('slug',)
 
     def save_model(self, request, obj, form, change):
         generate_unique_slug(self.model, 'slug', 'name', obj)
