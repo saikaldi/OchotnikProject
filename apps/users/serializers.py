@@ -25,6 +25,9 @@ class RegisterUserSerializer(serializers.Serializer):
             raise serializers.ValidationError("Пароли не совпадают")
         if User.objects.filter(email=data['email']).exists():
             raise serializers.ValidationError("Пользователь с таким email уже существует")
+        if User.objects.filter(username=data['username']).exists():
+            raise serializers.ValidationError("Пользователь с таким именом уже существует!")
+            
         return data
     
     def create(self, validated_data):
@@ -37,6 +40,7 @@ class RegisterUserSerializer(serializers.Serializer):
             is_active=True
         )
         return user
+
     
 class ConfirmRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
