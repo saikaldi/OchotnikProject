@@ -198,9 +198,9 @@ CORS_ALLOWED_ORIGINS = [
 ########################
 JAZZMIN_SETTINGS: Dict[str, Any] = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "Library Admin",
+    "site_title": "Онлайн Магазин",
     # Title on the brand, and login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "Library",
+    "site_header": "Онлайн Магазин",
     # Logo to use for your site, must be present in static files, used for brand on top left
     "site_logo": "books/img/logo.png",
     # Relative path to logo for your site, used for login logo (must be present in static files. Defaults to site_logo)
@@ -212,14 +212,14 @@ JAZZMIN_SETTINGS: Dict[str, Any] = {
     # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
     "site_icon": "books/img/icon.png",
     # Welcome text on the login screen
-    "welcome_sign": "Welcome to the library",
+    "welcome_sign": "Добро пожаловать в систему охотника Онлайн Магазина",
     # Copyright on the footer
-    "copyright": "Acme Library Ltd",
+    "copyright": "Охотник Онлайн Магазина",
     # List of model admins to search from the search bar, search bar omitted if excluded
     # If you want to use a single search field you dont need to use a list, you can use a simple string
     "search_model": ["auth.User", "auth.Group"],
     # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
-    "user_avatar": None,
+    "user_avatar": "avatar",
     ############
     # Top Menu #
     ############
