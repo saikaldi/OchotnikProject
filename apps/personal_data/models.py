@@ -32,9 +32,6 @@ class UserProfile(models.Model):
                 counter += 1
             self.slug = unique_slug
         self.email = self.user.email
-        self.first_name = self.user.first_name
-        self.last_name = self.user.last_name
-        self.birth_date = self.user.date_joined
         super().save(*args, **kwargs)
         
     class Meta:
