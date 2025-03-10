@@ -30,6 +30,7 @@ class User(AbstractUser, PermissionsMixin):
         ('Менеджер', 'Менеджер'),
         ('Пользователь', 'Пользователь'),
     ]
+    username = models.CharField(max_length=255,verbose_name="Имя пользователя")
     frist_name = models.CharField(max_length=50, verbose_name="Имя", blank=True, null=True) 
     last_name = models.CharField(max_length=50, verbose_name="Фамилия", blank=True, null=True)
     user_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="Пользователь", blank=True, null=True, verbose_name="Статус")
