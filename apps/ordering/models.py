@@ -5,6 +5,9 @@ from django.conf import settings
 from ..products.models import Cart
 from ..personal_data.models import UserAddress, UserPymentCard
 from django.core.mail import send_mail
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 
@@ -74,13 +77,38 @@ class Order(models.Model):
         else:
             self.total_sum = self.cart.product.price * self.quantity          
         if self.status == 'Оформлено':
-            send_mail(
-                'Ваш заказ на обработке',
-                'Оплатите что бы получить свой товар!',
+            subject = 'Спасибо за заказ на ochotnik.online'
+            product = f"""
+            <h1>Здравствуйте {self.user.username}!</h1>
+            <p>Спасибо за заказ в нашем магазине! 
+            Уверены, что вы останетесь им довольны. 
+            В ближайшее время мы с вами свяжемся и уточним некоторые детали вашего заказа.</p>
+            <hr>
+            <h2>Ваш заказ:</h2>
+            <h3>{self.cart.product.product_name}</h3>
+            <h3>Цена товары: {self.cart.product.price}</h3>
+            <h3>Цена со скидкой: {self.cart.product.discount_price}</h3>
+            <h3>Количество: {self.quantity}</h3>
+            <h3>Итого на сумму:  {self.total_sum}</h3>
+            <h3>Ваш адрес: {self.address}</h3>
+            """
+            if self.cart.product.image:
+                product += f"""
+                <img src="{self.cart.product.image.url}" alt="{self.cart.product.product_name}" width="600">
+                """
+
+            email = EmailMessage(
+                subject,
+                product,
                 'admin@example.com',
                 [self.user.email],
-                fail_silently=False,
             )
+            email.content_subtype = "html"  
+
+            if self.cart.product.image:
+                email.attach_file(self.cart.product.image.path)
+
+            email.send(fail_silently=False)
         super().save(*args, **kwargs)
         
     class Meta:
